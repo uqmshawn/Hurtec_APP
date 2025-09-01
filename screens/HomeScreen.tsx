@@ -39,7 +39,7 @@ export default function HomeScreen() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [displaySettings, setDisplaySettings] = useState<any>(null);
-  const [userTabs, setUserTabs] = useState<{ id: string; name: string; icon: keyof typeof Ionicons.glyphMap; url: string; }[] | null>(null);
+  const [userTabs, setUserTabs] = useState<{ id: string; name: string; icon: keyof typeof Ionicons.glyphMap; url: string; autoRefreshEnabled?: boolean; autoRefreshSeconds?: string; allowInsecure?: boolean; allowedHosts?: string; certFingerprintSha256?: string; }[] | null>(null);
 
   const defaultTabs: TabData[] = [
     {
@@ -82,7 +82,7 @@ export default function HomeScreen() {
       id: 'local',
       name: 'Local System',
       icon: 'server',
-      url: '192.168.82.120:8080/home.htm',
+      url: '192.168.1.100:8080',
       status: {
         name: 'Local Monitoring',
         status: 'online',
@@ -102,7 +102,7 @@ export default function HomeScreen() {
       try {
         const storedTabs = await SecureStore.getItemAsync('dashboard.tabs');
         if (storedTabs) {
-          const parsed = JSON.parse(storedTabs) as { id: string; name: string; icon: keyof typeof Ionicons.glyphMap; url: string; }[];
+          const parsed = JSON.parse(storedTabs) as { id: string; name: string; icon: keyof typeof Ionicons.glyphMap; url: string; autoRefreshEnabled?: boolean; autoRefreshSeconds?: string; allowInsecure?: boolean; allowedHosts?: string; certFingerprintSha256?: string; }[];
           setUserTabs(parsed);
         }
       } catch {}
@@ -125,7 +125,7 @@ export default function HomeScreen() {
         try {
           const storedTabs = await SecureStore.getItemAsync('dashboard.tabs');
           if (storedTabs && mounted) {
-            const parsed = JSON.parse(storedTabs) as { id: string; name: string; icon: keyof typeof Ionicons.glyphMap; url: string; }[];
+            const parsed = JSON.parse(storedTabs) as { id: string; name: string; icon: keyof typeof Ionicons.glyphMap; url: string; autoRefreshEnabled?: boolean; autoRefreshSeconds?: string; allowInsecure?: boolean; allowedHosts?: string; certFingerprintSha256?: string; }[];
             setUserTabs(parsed);
           }
         } catch {}
@@ -143,14 +143,14 @@ export default function HomeScreen() {
   );
 
   const tabs: TabData[] = (userTabs && userTabs.length ? userTabs : defaultTabs).map((t) => {
-    // Map to TabData with placeholder status for user-defined tabs
-    const found = defaultTabs.find(d => d.id === t.id);
-    return found ?? {
+    // Use user tab data first, fallback to default status if needed
+    const defaultTab = defaultTabs.find(d => d.id === t.id);
+    return {
       id: t.id,
       name: t.name,
       icon: t.icon,
       url: t.url,
-      status: {
+      status: defaultTab?.status ?? {
         name: t.name,
         status: 'online',
         lastUpdate: '—',
@@ -170,7 +170,8 @@ export default function HomeScreen() {
 
   const handleSystemCardPress = (tab: TabData) => {
     // Navigate to embedded web dashboard for this tab
-    navigation.navigate('WebDashboard' as never, { tab } as never);
+    // @ts-ignore - Navigation typing issue
+    navigation.navigate('WebDashboard' as any, { tab } as any);
   };
 
   const renderSystemCard = (tab: TabData) => (
@@ -196,7 +197,7 @@ export default function HomeScreen() {
           {Object.entries(tab.status.data || {}).map(([key, value]) => (
             <View key={key} style={styles.dataItem}>
               <Text style={styles.dataLabel}>{key.toUpperCase()}</Text>
-              <Text style={styles.dataValue}>{value}</Text>
+              <Text style={styles.dataValue}>{String(value)}</Text>
             </View>
           ))}
         </View>
@@ -239,18 +240,27 @@ export default function HomeScreen() {
                 color="#60A5FA" 
               />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.controlButton}>
-              <Ionicons name="refresh" size={20} color="#60A5FA" />
+            <TouchableOpacity 
+              style={styles.controlButton}
+              onPress={() => navigation.navigate('Settings' as never)}
+            >
+              <Ionicons name="settings" size={20} color="#60A5FA" />
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.controlButton}
-              onPress={() => navigation.navigate('WebDashboard' as never, { tab: tabs[activeTab] } as never)}
+              onPress={() => {
+                // @ts-ignore - Navigation typing issue
+                navigation.navigate('WebDashboard' as any, { tab: tabs[activeTab] } as any);
+              }}
             >
               <Ionicons name="globe" size={20} color="#60A5FA" />
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.controlButton}
-              onPress={() => navigation.navigate('WebDashboard' as never, { tab: { id: 'youtube', name: 'YouTube', icon: 'logo-youtube', url: 'https://m.youtube.com' } } as never)}
+              onPress={() => {
+                // @ts-ignore - Navigation typing issue
+                navigation.navigate('WebDashboard' as any, { tab: { id: 'youtube', name: 'YouTube', icon: 'logo-youtube', url: 'https://m.youtube.com' } } as any);
+              }}
             >
               <Ionicons name="logo-youtube" size={20} color="#EF4444" />
             </TouchableOpacity>
@@ -284,7 +294,10 @@ export default function HomeScreen() {
                   activeTab === index && styles.activeTab
                 ]}
                 onPress={() => setActiveTab(index)}
-                onLongPress={() => navigation.navigate('WebDashboard' as never, { tab } as never)}
+                onLongPress={() => {
+                  // @ts-ignore - Navigation typing issue  
+                  navigation.navigate('WebDashboard' as any, { tab } as any);
+                }}
               >
                 <Ionicons 
                   name={tab.icon} 
@@ -412,15 +425,21 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   controlButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(30, 58, 138, 0.3)',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(30, 58, 138, 0.4)',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(96, 165, 250, 0.3)',
+    borderWidth: 2,
+    borderColor: 'rgba(96, 165, 250, 0.4)',
+    // Enhanced for car dashboard use
+    shadowColor: '#60A5FA',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
   tabContainer: {
     paddingVertical: 16,
@@ -433,14 +452,20 @@ const styles = StyleSheet.create({
   tab: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
     marginRight: 16,
-    borderRadius: 12,
-    backgroundColor: 'rgba(30, 58, 138, 0.2)',
-    borderWidth: 1,
-    borderColor: 'rgba(96, 165, 250, 0.3)',
-    minWidth: 140,
+    borderRadius: 14,
+    backgroundColor: 'rgba(30, 58, 138, 0.25)',
+    borderWidth: 2,
+    borderColor: 'rgba(96, 165, 250, 0.4)',
+    minWidth: 160,
+    // Enhanced for car dashboard use
+    shadowColor: '#1E293B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   activeTab: {
     backgroundColor: 'rgba(0, 255, 136, 0.1)',
