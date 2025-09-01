@@ -39,7 +39,7 @@ export default function HomeScreen() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [displaySettings, setDisplaySettings] = useState<any>(null);
-  const [userTabs, setUserTabs] = useState<{ id: string; name: string; icon: keyof typeof Ionicons.glyphMap; url: string; }[] | null>(null);
+  const [userTabs, setUserTabs] = useState<{ id: string; name: string; icon: keyof typeof Ionicons.glyphMap; url: string; autoRefreshEnabled?: boolean; autoRefreshSeconds?: string; allowInsecure?: boolean; allowedHosts?: string; certFingerprintSha256?: string; }[] | null>(null);
 
   const defaultTabs: TabData[] = [
     {
@@ -82,7 +82,7 @@ export default function HomeScreen() {
       id: 'local',
       name: 'Local System',
       icon: 'server',
-      url: '192.168.82.120:8080/home.htm',
+      url: '192.168.1.100:8080',
       status: {
         name: 'Local Monitoring',
         status: 'online',
@@ -102,7 +102,7 @@ export default function HomeScreen() {
       try {
         const storedTabs = await SecureStore.getItemAsync('dashboard.tabs');
         if (storedTabs) {
-          const parsed = JSON.parse(storedTabs) as { id: string; name: string; icon: keyof typeof Ionicons.glyphMap; url: string; }[];
+          const parsed = JSON.parse(storedTabs) as { id: string; name: string; icon: keyof typeof Ionicons.glyphMap; url: string; autoRefreshEnabled?: boolean; autoRefreshSeconds?: string; allowInsecure?: boolean; allowedHosts?: string; certFingerprintSha256?: string; }[];
           setUserTabs(parsed);
         }
       } catch {}
@@ -125,7 +125,7 @@ export default function HomeScreen() {
         try {
           const storedTabs = await SecureStore.getItemAsync('dashboard.tabs');
           if (storedTabs && mounted) {
-            const parsed = JSON.parse(storedTabs) as { id: string; name: string; icon: keyof typeof Ionicons.glyphMap; url: string; }[];
+            const parsed = JSON.parse(storedTabs) as { id: string; name: string; icon: keyof typeof Ionicons.glyphMap; url: string; autoRefreshEnabled?: boolean; autoRefreshSeconds?: string; allowInsecure?: boolean; allowedHosts?: string; certFingerprintSha256?: string; }[];
             setUserTabs(parsed);
           }
         } catch {}
@@ -143,14 +143,14 @@ export default function HomeScreen() {
   );
 
   const tabs: TabData[] = (userTabs && userTabs.length ? userTabs : defaultTabs).map((t) => {
-    // Map to TabData with placeholder status for user-defined tabs
-    const found = defaultTabs.find(d => d.id === t.id);
-    return found ?? {
+    // Use user tab data first, fallback to default status if needed
+    const defaultTab = defaultTabs.find(d => d.id === t.id);
+    return {
       id: t.id,
       name: t.name,
       icon: t.icon,
       url: t.url,
-      status: {
+      status: defaultTab?.status ?? {
         name: t.name,
         status: 'online',
         lastUpdate: '—',

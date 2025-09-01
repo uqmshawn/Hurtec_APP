@@ -269,10 +269,59 @@ export default function WebDashboard() {
                   <Text style={{ color: '#E5E7EB', marginLeft: 8 }}>{t.name}</Text>
                 </TouchableOpacity>
               ))}
-              {/* YouTube quick icon */}
-              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, marginRight: 8, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(239,68,68,0.5)', backgroundColor: 'rgba(239,68,68,0.15)' }} onPress={() => webRef.current?.injectJavaScript(`window.location.href='https://m.youtube.com'`)}>
-                <Ionicons name="logo-youtube" size={18} color="#EF4444" />
-                <Text style={{ color: '#FCA5A5', marginLeft: 8 }}>YouTube</Text>
+              {/* Entertainment quick access buttons for car dashboard */}
+              <TouchableOpacity 
+                style={{ 
+                  flexDirection: 'row', 
+                  alignItems: 'center', 
+                  paddingHorizontal: 12, 
+                  paddingVertical: 8, 
+                  marginRight: 8, 
+                  borderRadius: 12, 
+                  borderWidth: 1, 
+                  borderColor: 'rgba(239,68,68,0.5)', 
+                  backgroundColor: 'rgba(239,68,68,0.15)' 
+                }} 
+                onPress={() => webRef.current?.injectJavaScript(`window.location.href='https://m.youtube.com'`)}
+              >
+                <Ionicons name="logo-youtube" size={20} color="#EF4444" />
+                <Text style={{ color: '#FCA5A5', marginLeft: 8, fontSize: 16, fontWeight: '600' }}>YouTube</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={{ 
+                  flexDirection: 'row', 
+                  alignItems: 'center', 
+                  paddingHorizontal: 12, 
+                  paddingVertical: 8, 
+                  marginRight: 8, 
+                  borderRadius: 12, 
+                  borderWidth: 1, 
+                  borderColor: 'rgba(34,197,94,0.5)', 
+                  backgroundColor: 'rgba(34,197,94,0.15)' 
+                }} 
+                onPress={() => webRef.current?.injectJavaScript(`window.location.href='https://open.spotify.com'`)}
+              >
+                <Ionicons name="musical-notes" size={20} color="#22C55E" />
+                <Text style={{ color: '#86EFAC', marginLeft: 8, fontSize: 16, fontWeight: '600' }}>Spotify</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={{ 
+                  flexDirection: 'row', 
+                  alignItems: 'center', 
+                  paddingHorizontal: 12, 
+                  paddingVertical: 8, 
+                  marginRight: 8, 
+                  borderRadius: 12, 
+                  borderWidth: 1, 
+                  borderColor: 'rgba(59,130,246,0.5)', 
+                  backgroundColor: 'rgba(59,130,246,0.15)' 
+                }} 
+                onPress={() => webRef.current?.injectJavaScript(`window.location.href='https://maps.google.com'`)}
+              >
+                <Ionicons name="map" size={20} color="#3B82F6" />
+                <Text style={{ color: '#93C5FD', marginLeft: 8, fontSize: 16, fontWeight: '600' }}>Maps</Text>
               </TouchableOpacity>
             </ScrollView>
           )}
