@@ -93,7 +93,7 @@ export default function SettingsScreen() {
         if (storedDisplay) setSettings(JSON.parse(storedDisplay));
       } catch {}
       try {
-        const androidId = await Application.getAndroidIdAsync();
+        const androidId = await Application.getAndroidId();
         const model = Device.modelName ?? 'Unknown Model';
         const os = `${Device.osName ?? 'Android'} ${Device.osVersion ?? ''}`.trim();
         const brand = Device.brand ?? 'Unknown Brand';
@@ -740,7 +740,7 @@ export default function SettingsScreen() {
             <View key={sectionIndex} style={styles.section}>
               <Text style={styles.sectionTitle}>{section.title}</Text>
               
-              {section.items.map((item) => renderSettingItem(item))}
+              {section.items.map((item) => renderSettingItem(item as SettingItem))}
             </View>
           ))}
           

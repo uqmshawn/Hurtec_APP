@@ -19,6 +19,8 @@ interface TabData {
   allowInsecure?: boolean;
   allowedHosts?: string;
   certFingerprintSha256?: string;
+  autoRefreshEnabled?: boolean;
+  autoRefreshSeconds?: string;
 }
 
 type CredMap = Record<string, { username: string; password: string }>;
@@ -53,7 +55,7 @@ export default function WebDashboard() {
 
   useEffect(() => {
     (async () => {
-      try { setAndroidId(await Application.getAndroidIdAsync()); } catch {}
+      try { setAndroidId(Application.getAndroidId()); } catch {}
     })();
   }, []);
 
@@ -234,7 +236,10 @@ export default function WebDashboard() {
             <Text style={styles.headerSubtitle}>{startUrl}</Text>
           </View>
           <View style={styles.controls}>
-            <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.navigate('Diagnostics' as never, { tabId: tab?.id } as never)}>
+            <TouchableOpacity style={styles.iconBtn} onPress={() => {
+              // @ts-ignore - Navigation typing issue
+              navigation.navigate('Diagnostics' as any, { tabId: tab?.id } as any);
+            }}>
               <Ionicons name="bug" size={18} color="#60A5FA" />
             </TouchableOpacity>
             {(allowAllInsecure || currentTabAllowInsecure) && (
